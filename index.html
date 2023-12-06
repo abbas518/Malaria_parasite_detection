@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Malaria Parasite Detection</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 50px;
+    }
+    h1 {
+      margin-bottom: 20px;
+    }
+    #fileInput {
+      margin-bottom: 20px;
+    }
+    #uploadContainer {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    #uploadedImage {
+      margin-top: 20px;
+      max-width: 300px;
+      display: none;
+    }
+    #predictionResult {
+      margin-top: 20px;
+      font-weight: bold;
+    }
+    button {
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 4px;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Malaria Parasite Detection</h1>
+  <div id="uploadContainer">
+    <input type="file" id="fileInput">
+    <button onclick="predict()">Predict</button>
+    <img id="uploadedImage" src="#" alt="Uploaded Image">
+    <p id="predictionResult"></p>
+  </div>
+
+  <script>
+    function predict() {
+      const fileInput = document.getElementById('fileInput');
+      const uploadedImage = document.getElementById('uploadedImage');
+      const predictionResult = document.getElementById('predictionResult');
+
+      const file = fileInput.files[0];
+      const reader = new FileReader();
+
+      reader.onload = function(event) {
+        uploadedImage.src = event.target.result;
+        uploadedImage.style.display = 'block';
+
+        const formData = new FormData();
+        formData.append('image', file);
+
+        // Send image data to the server for prediction
+        fetch('/predict', {
+          method: 'POST',
+          body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+          // Display prediction result
+          predictionResult.innerText = `Prediction: ${data.prediction}`;
+        })
+        .catch(error => {
+          console.error('Error predicting image:', error);
+          predictionResult.innerText = 'Prediction failed.';
+        });
+      };
+
+      if (file) {
+        reader.readAsDataURL(file);
+      }
+    }
+  </script>
+</body>
+</html>
